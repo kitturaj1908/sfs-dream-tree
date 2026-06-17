@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFS College DEEKSHARAMBHA 2K26 - Student Message Portal</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .portal-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px 30px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-section h1 {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .header-section p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        textarea {
+            resize: none;
+            height: 120px;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* Success Card overlay */
+        .success-overlay {
+            display: none;
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px auto;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            animation: pulse-icon 2s infinite;
+        }
+
+        @keyframes pulse-icon {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            }
+
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+            }
+        }
+
+        .success-overlay h2 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            font-family: var(--font-serif);
+        }
+
+        .success-overlay p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* Ambient floating dots in background */
+        .background-leaves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .leaf-particle {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(217, 70, 239, 0.2));
+            border-radius: 50% 0 50% 50%;
+            transform: rotate(45deg);
+            animation: float-particle 10s linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.8;
+            }
+
+            90% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background decorative elements -->
+    <div class="background-leaves" id="particle-container"></div>
+
+    <div class="portal-container glass-panel animate-rise">
+        <!-- Message Submission Form -->
+        <div id="form-container">
+            <div class="header-section">
+                <h1 class="text-neon-cyan">SFS College (Autonomous) </h1>
+                <h2 style="font-size: 2 rem; font-weight: 500; letter-spacing: 0.5px; margin-bottom: 10px;">
+                    DEEKSHARAMBHA 2K26</h2>
+                <p>Welcome, newcomers! Share your dreams, goals, or positive wishes for your journey at SFS. Your words
+                    will form the leaves of our digital <strong>Dream Tree</strong>.</p>
+            </div>
+
+            <form id="dream-form" onsubmit="submitDream(event)">
+                <div class="form-group">
+                    <label for="student-name">Your Name <span
+                            style="font-size: 0.8rem; color: #64748b;">(Optional)</span></label>
+                    <input type="text" id="student-name" maxlength="35" placeholder="e.g., Priya Sharma">
+                </div>
+
+                <div class="form-group">
+                    <label for="student-message">Your Dream / Message *</label>
+                    <textarea id="student-message" required maxlength="150"
+                        placeholder="e.g., To learn, make amazing friends, and excel in technology!"></textarea>
+                    <div class="char-counter"><span id="char-count">0</span> / 150</div>
+                </div>
+
+                <button type="submit" class="glow-btn submit-btn" id="submit-btn">
+                    Send to the Dream Tree
+                </button>
+            </form>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="success-container" class="success-overlay">
+            <div class="success-icon">✓</div>
+            <h2 class="text-neon-magenta">Dream Sent!</h2>
+            <p>Your wish has been registered. Keep your eyes on the main screen during DEEKSHARAMBHA 2K26 to watch the
+                <strong>Dream Tree of SFS Students</strong> blossom with your words!
+            </p>
+            <button onclick="resetForm()" class="glow-btn"
+                style="padding: 10px 20px; font-size: 0.9rem; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                Submit Another Dream
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Character counter
+        const textarea = document.getElementById('student-message');
+        const charCount = document.getElementById('char-count');
+        textarea.addEventListener('input', () => {
+            charCount.textContent = textarea.value.length;
+        });
+
+        // Background particles generator
+        const container = document.getElementById('particle-container');
+        const colors = [
+            'rgba(0, 242, 254, 0.15)',
+            'rgba(217, 70, 239, 0.15)',
+            'rgba(16, 185, 129, 0.15)'
+        ];
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('leaf-particle');
+
+            const size = Math.random() * 15 + 10;
+            const left = Math.random() * 100;
+            const duration = Math.random() * 10 + 8;
+            const delay = Math.random() * 5;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${left}%`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `-${delay}s`;
+            particle.style.background = color;
+
+            container.appendChild(particle);
+
+            // Remove after loop
+            setTimeout(() => {
+                particle.remove();
+            }, (duration + delay) * 1000);
+        }
+
+        // Spawn initial particles
+        for (let i = 0; i < 15; i++) {
+            createParticle();
+        }
+        // Spawn interval
+        setInterval(createParticle, 1200);
+
+        // Submit to API
+        async function submitDream(event) {
+            event.preventDefault();
+
+            const nameInput = document.getElementById('student-name');
+            const messageInput = document.getElementById('student-message');
+            const submitBtn = document.getElementById('submit-btn');
+
+            const name = nameInput.value.trim();
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
+
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    // ✅ Positive message approved — show success screen
+                    document.getElementById('form-container').style.display = 'none';
+                    document.getElementById('success-container').style.display = 'block';
+
+                    nameInput.value = '';
+                    messageInput.value = '';
+                    charCount.textContent = '0';
+
+                } else if (response.ok && data.status === 'filtered') {
+                    // 🌱 Message was neutral/negative — encourage a positive rewrite
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Send to the Dream Tree";
+
+                    // Show gentle nudge banner
+                    let nudge = document.getElementById('nudge-banner');
+                    if (!nudge) {
+                        nudge = document.createElement('div');
+                        nudge.id = 'nudge-banner';
+                        nudge.style.cssText = `
+                            background: rgba(16,185,129,0.08);
+                            border: 1px solid rgba(16,185,129,0.35);
+                            border-radius: 12px;
+                            padding: 14px 18px;
+                            margin-top: 16px;
+                            font-size: 0.93rem;
+                            color: rgba(255,255,255,0.85);
+                            line-height: 1.55;
+                            text-align: center;
+                        `;
+                        document.getElementById('dream-form').appendChild(nudge);
+                    }
+                    nudge.innerHTML = `
+                        🌳 <strong>Keep it positive!</strong><br>
+                        The Dream Tree only blooms with uplifting messages — hopes, goals, and good wishes.<br>
+                        <span style="color:rgba(0,242,254,0.8); font-size:0.85rem;">Try writing what you are excited about at SFS College!</span>
+                    `;
+                    nudge.style.display = 'block';
+
+                } else {
+                    alert(data.detail || "Error submitting message.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Send to the Dream Tree";
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error, please try again.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Send to the Dream Tree";
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('success-container').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('submit-btn').textContent = "Send to the Dream Tree";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The SFS Dream Tree</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #070814;
+        }
+
+        .display-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* HUD Header UI */
+        .hud-header {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .hud-title {
+            font-family: var(--font-serif);
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #d4e6ff, #ffcdd6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            animation: text-glow-pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes text-glow-pulse {
+
+            0%,
+            100% {
+                filter:
+                    drop-shadow(0 0 8px rgba(178, 202, 250, 0.7)) drop-shadow(0 0 20px rgba(255, 172, 179, 0.4));
+            }
+
+            50% {
+                filter:
+                    drop-shadow(0 0 16px rgba(178, 202, 250, 1.0)) drop-shadow(0 0 36px rgba(255, 172, 179, 0.7));
+            }
+        }
+
+        .hud-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 6px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            font-weight: 500;
+
+            /* Pill-shaped tinted badge specifically for the subtitle text */
+            display: inline-block;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            border-radius: 50px;
+            padding: 6px 24px;
+            animation: subtitle-shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes subtitle-shimmer {
+
+            0%,
+            100% {
+                background: rgba(0, 242, 254, 0.08);
+                border-color: rgba(0, 242, 254, 0.18);
+            }
+
+            50% {
+                background: rgba(0, 242, 254, 0.14);
+                border-color: rgba(0, 242, 254, 0.35);
+                box-shadow: 0 0 16px rgba(0, 242, 254, 0.15);
+            }
+        }
+
+        /* Inauguration prompt */
+        .prompt-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            padding: 30px 50px;
+            text-align: center;
+            pointer-events: auto;
+            cursor: pointer;
+            border-radius: 20px;
+            opacity: 0;
+            display: none;
+            transition: opacity 0.8s ease, border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        .prompt-box:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 242, 254, 0.6);
+            box-shadow: 0 0 35px rgba(0, 242, 254, 0.45);
+            transform: translate(-50%, -50%) scale(1.04);
+        }
+
+        .prompt-key {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-family: var(--font-sans);
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin: 15px 0;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+
+
+        /* Portal Call to Action details */
+        .portal-cta {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1.5px;
+            text-align: center;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        .portal-cta span {
+            color: var(--primary);
+            font-weight: 600;
+            text-shadow: var(--text-glow);
+        }
+
+        /* Sound Effect Indicator */
+        .sound-indicator {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(45, 45, 45, 0.121);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sound-indicator:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary);
+        }
+
+        .sound-icon {
+            fill: white;
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="display-container">
+        <!-- Main Canvas Drawing -->
+        <canvas id="tree-canvas"></canvas>
+
+        <!-- Top Header Overlay — hidden until tree activates -->
+        <div class="hud-header" id="hud-header" style="opacity:0; pointer-events:none; transition: opacity 1.4s ease;">
+            <h1 class="hud-title">The SFS Dream Tree</h1>
+            <div class="hud-subtitle">SFS COLLEGE · DEEKSHARAMBHA 2K26</div>
+        </div>
+
+        <!-- Waiting/Prompt Screen -->
+        <div id="activation-prompt" class="prompt-box glass-panel" onclick="triggerActivation()"
+            style="display: none; opacity: 0;">
+            <h2 style="font-size: 1.4rem; font-weight: 500; letter-spacing: 1px;">WELCOME CHIEF GUEST</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 5px;">Click here or press Spacebar to
+                reveal the Dream Tree</p>
+            <div class="prompt-key" id="prompt-key-label">SPACEBAR</div>
+        </div>
+
+
+
+        <!-- Submission directions overlay removed -->
+
+        <!-- Sound controller toggler -->
+        <div class="sound-indicator" id="sound-btn" onclick="toggleSound()"
+            style="opacity: 0; pointer-events: none; transition: opacity 0.8s ease;">
+            <!-- Speaker Icon -->
+            <svg class="sound-icon" viewBox="0 0 24 24" id="sound-svg">
+                <path
+                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/tree.js"></script>
+    <script>
+        let soundMuted = false;
+
+        // Populate the client IP URL in display CTA bar
+        async function fetchCTAConfig() {
+            try {
+                const response = await fetch("/api/status");
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Update key visual prompt label
+                    const keyLabel = document.getElementById("prompt-key-label");
+                    keyLabel.textContent = data.activation_key.toUpperCase();
+
+                    // Update host IP url details
+                    const hostIP = window.location.hostname;
+                    const port = window.location.port ? `:${window.location.port}` : '';
+                    const ctaLink = document.getElementById("cta-link");
+                    if (ctaLink) {
+                        ctaLink.textContent = `http://${hostIP}${port}/`;
+                    }
+
+                    if (data.is_activated) {
+                        hidePrompt();
+                    }
+                }
+            } catch (err) {
+                console.error("CTA loading error:", err);
+            }
+        }
+
+        // Polling checking activation states
+        setInterval(async () => {
+            try {
+                const response = await fetch("/api/status");
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.is_activated) {
+                        hidePrompt();
+                    } else {
+                        if (window.tree && window.tree.activationStage !== 'blank') {
+                            showPrompt();
+                        }
+                    }
+                }
+            } catch (err) { }
+        }, 2000);
+
+        function hidePrompt() {
+            const prompt = document.getElementById("activation-prompt");
+            if (prompt && prompt.style.display !== "none") {
+                prompt.style.opacity = "0";
+                setTimeout(() => {
+                    prompt.style.display = "none";
+                }, 800);
+            }
+        }
+
+        function showPrompt() {
+            const prompt = document.getElementById("activation-prompt");
+            if (prompt && prompt.style.display === "none") {
+                prompt.style.display = "block";
+                setTimeout(() => {
+                    prompt.style.opacity = "1";
+                }, 50);
+            }
+            const soundBtn = document.getElementById("sound-btn");
+            if (soundBtn) {
+                soundBtn.style.opacity = "1";
+                soundBtn.style.pointerEvents = "auto";
+            }
+        }
+
+        function toggleSound() {
+            soundMuted = !soundMuted;
+            const svg = document.getElementById("sound-svg");
+
+            if (soundMuted) {
+                // Change icon to muted speaker
+                svg.innerHTML = `<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>`;
+                // Override audio functions
+                synth.playInaugurationBoom = () => { };
+                synth.playChime = () => { };
+                synth.playCardWhoosh = () => { };
+            } else {
+                // Restore icon to speaker waves
+                svg.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>`;
+                // Restore logic
+                delete synth.playInaugurationBoom;
+                delete synth.playChime;
+                delete synth.playCardWhoosh;
+            }
+        }
+
+        // Called by tree.js after grow animation completes — fades in the title
+        function activateTitle() {
+            const hud = document.getElementById('hud-header');
+            if (hud) {
+                hud.style.opacity = '1';
+            }
+        }
+
+        // Initialize configs
+        window.addEventListener("load", fetchCTAConfig);
+    </script>
+</body>
+
+</html>
