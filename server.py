@@ -708,6 +708,12 @@ async def get_display():
     with open(os.path.join(STATIC_DIR, 'display.html'), 'r', encoding='utf-8') as f:
         return HTMLResponse(content=f.read())
 
+@app.get("/display-only", response_class=HTMLResponse)
+@app.get("/display_only", response_class=HTMLResponse)
+async def get_display_only():
+    with open(os.path.join(STATIC_DIR, 'display_only.html'), 'r', encoding='utf-8') as f:
+        return HTMLResponse(content=f.read())
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name='static')
 
 ip = get_local_ip()
@@ -717,4 +723,5 @@ print('============================================================')
 print(f' * STUDENT PORTAL (Scan QR / Open link): http://localhost:8000/  or http://{ip}:8000/')
 print(' * ADMIN DASHBOARD (Manage wishes):       http://localhost:8000/admin')
 print(' * MAIN DISPLAY (The Dream Tree Visual):  http://localhost:8000/display')
+print(' * DISPLAY ONLY (Non-Interactive):        http://localhost:8000/display-only')
 print('============================================================')

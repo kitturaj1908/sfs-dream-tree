@@ -231,6 +231,15 @@
                 <div class="logo-text">SFS College</div>
             </a>
 
+            <!-- Database Connection Panel -->
+            <div class="glass-panel" style="padding: 16px 20px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 15px;">
+                <div style="font-weight: 600; color: rgba(255, 255, 255, 0.8); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span id="db-status-dot" style="width: 8px; height: 8px; border-radius: 50%; display: inline-block; background-color: var(--text-muted);"></span>
+                    Database Status
+                </div>
+                <div id="db-host-label" style="word-break: break-all; color: var(--text-muted); line-height: 1.4;">Connecting...</div>
+            </div>
+
             <div
                 style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 20px;">
                 Event Orchestration
@@ -357,9 +366,36 @@
             // Initial load
             refreshData();
             loadConfig();
+            loadDbInfo();
 
             // Auto update every 3 seconds
             setInterval(refreshData, 3000);
+        }
+
+        async function loadDbInfo() {
+            try {
+                const response = await fetch("/api/db-info");
+                if (response.ok) {
+                    const data = await response.json();
+                    const hostLabel = document.getElementById("db-host-label");
+                    const statusDot = document.getElementById("db-status-dot");
+                    if (data.is_tidb) {
+                        hostLabel.innerHTML = `Connected to TiDB Cloud:<br><strong style="color: var(--primary); font-size: 0.8rem;">${data.host}</strong>`;
+                        statusDot.style.backgroundColor = "var(--primary)";
+                        statusDot.style.boxShadow = "0 0 8px var(--primary)";
+                    } else if (data.is_postgres) {
+                        hostLabel.innerHTML = `Connected to PostgreSQL:<br><strong style="color: var(--secondary); font-size: 0.8rem;">${data.host}</strong>`;
+                        statusDot.style.backgroundColor = "var(--secondary)";
+                        statusDot.style.boxShadow = "0 0 8px var(--secondary)";
+                    } else {
+                        hostLabel.innerHTML = `Connected to SQLite:<br><strong style="color: white; font-size: 0.8rem;">${data.host}</strong>`;
+                        statusDot.style.backgroundColor = "var(--accent)";
+                        statusDot.style.boxShadow = "0 0 8px var(--accent)";
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function refreshData() {
