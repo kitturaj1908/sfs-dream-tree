@@ -279,43 +279,14 @@
 
                 const data = await response.json();
 
-                if (response.ok && data.status === 'success') {
-                    // ✅ Positive message approved — show success screen
+                if (response.ok && (data.status === 'success' || data.status === 'filtered')) {
+                    // Show success screen
                     document.getElementById('form-container').style.display = 'none';
                     document.getElementById('success-container').style.display = 'block';
 
                     nameInput.value = '';
                     messageInput.value = '';
                     charCount.textContent = '0';
-
-                } else if (response.ok && data.status === 'filtered') {
-                    // 🌱 Message was neutral/negative — encourage a positive rewrite
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = "Send";
-
-                    // Show gentle nudge banner
-                    let nudge = document.getElementById('nudge-banner');
-                    if (!nudge) {
-                        nudge = document.createElement('div');
-                        nudge.id = 'nudge-banner';
-                        nudge.style.cssText = `
-                            background: rgba(16,185,129,0.08);
-                            border: 1px solid rgba(16,185,129,0.35);
-                            border-radius: 12px;
-                            padding: 14px 18px;
-                            margin-top: 16px;
-                            font-size: 0.93rem;
-                            color: rgba(255,255,255,0.85);
-                            line-height: 1.55;
-                            text-align: center;
-                        `;
-                        document.getElementById('dream-form').appendChild(nudge);
-                    }
-                    nudge.innerHTML = `
-                        🌳 <strong>Keep it positive!</strong><br>
-                        <span style="color:rgba(0,242,254,0.8); font-size:0.85rem;">Try writing what you are excited about at SFS College!</span>
-                    `;
-                    nudge.style.display = 'block';
 
                 } else {
                     alert(data.detail || "Error submitting message.");
