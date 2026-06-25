@@ -202,36 +202,6 @@
         </div>
     </div>
 
-    <!-- DB Connection Info Badge -->
-    <div id="db-info-footer" style="
-        position: fixed;
-        bottom: 20px;
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.45);
-        background: rgba(10, 11, 28, 0.6);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 50px;
-        padding: 6px 18px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        z-index: 100;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-    ">
-        <span id="db-status-dot" style="
-            width: 8px;
-            height: 8px;
-            background-color: var(--text-muted);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px var(--text-muted);
-        "></span>
-        <span id="db-host-label">Connecting database...</span>
-    </div>
 
     <script>
         // Character counter
@@ -367,33 +337,6 @@
             document.getElementById('submit-btn').textContent = "Send";
         }
 
-        async function fetchDbInfo() {
-            try {
-                const response = await fetch('/api/db-info');
-                if (response.ok) {
-                    const data = await response.json();
-                    const hostLabel = document.getElementById('db-host-label');
-                    const statusDot = document.getElementById('db-status-dot');
-                    
-                    if (data.is_tidb) {
-                        hostLabel.innerHTML = `Connected to TiDB Cloud: <strong style="color: var(--primary);">${data.host}</strong>`;
-                        statusDot.style.backgroundColor = 'var(--primary)';
-                        statusDot.style.boxShadow = '0 0 10px var(--primary)';
-                    } else if (data.is_postgres) {
-                        hostLabel.innerHTML = `Connected to PostgreSQL: <strong style="color: var(--secondary);">${data.host}</strong>`;
-                        statusDot.style.backgroundColor = 'var(--secondary)';
-                        statusDot.style.boxShadow = '0 0 10px var(--secondary)';
-                    } else {
-                        hostLabel.innerHTML = `Database: <strong style="color: rgba(255,255,255,0.7);">${data.host}</strong>`;
-                        statusDot.style.backgroundColor = 'var(--accent)';
-                        statusDot.style.boxShadow = '0 0 8px var(--accent)';
-                    }
-                }
-            } catch (err) {
-                console.error("Failed to load DB info:", err);
-            }
-        }
-        fetchDbInfo();
     </script>
 </body>
 
