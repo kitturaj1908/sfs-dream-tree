@@ -703,7 +703,6 @@ async def get_admin():
     with open(os.path.join(STATIC_DIR, 'admin.html'), 'r', encoding='utf-8') as f:
         return HTMLResponse(content=f.read())
 
-@app.get("/display", response_class=HTMLResponse)
 @app.get("/inauguration", response_class=HTMLResponse)
 async def get_display():
     with open(os.path.join(STATIC_DIR, 'Inauguration.html'), 'r', encoding='utf-8') as f:
@@ -723,6 +722,6 @@ print(' SFS COLLEGE DREAM TREE — DEEKSHARAMBHA 2K26')
 print('============================================================')
 print(f' * STUDENT PORTAL (Scan QR / Open link): http://localhost:8000/  or http://{ip}:8000/')
 print(' * ADMIN DASHBOARD (Manage wishes):       http://localhost:8000/admin')
-print(' * MAIN DISPLAY (The Dream Tree Visual):  http://localhost:8000/display')
+print(' * INAUGURATION DISPLAY (Interactive):     http://localhost:8000/inauguration')
 print(' * DISPLAY ONLY (Non-Interactive):        http://localhost:8000/display-only')
 print('============================================================')
