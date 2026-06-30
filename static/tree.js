@@ -65,19 +65,117 @@ class SoundSynth {
         const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(120, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 3.5);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 17.5);
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.06, now + 0.4);
-        gain.gain.linearRampToValueAtTime(0.08, now + 2.5);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 3.8);
+        gain.gain.linearRampToValueAtTime(0.06, now + 1.5);
+        gain.gain.linearRampToValueAtTime(0.08, now + 15.0);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 18.8);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(now); osc.stop(now + 4);
+        osc.start(now); osc.stop(now + 19);
         // Cascade chimes at peak
-        for (let i = 0; i < 12; i++) this.playChimeNode(300 + i * 120, now + 3.0 + i * 0.12, 0.5);
+        for (let i = 0; i < 12; i++) this.playChimeNode(300 + i * 120, now + 16.0 + i * 0.2, 0.5);
+    }
+
+    playGoldTextFade() {
+        this.init();
+        if (typeof soundMuted !== 'undefined' && soundMuted) return;
+        const now = this.ctx.currentTime;
+        
+        // Rise/Swell WhooshLow
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(80, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 1.5);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(100, now);
+        filter.frequency.exponentialRampToValueAtTime(2000, now + 1.5);
+        filter.Q.setValueAtTime(5, now);
+        
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.08, now + 1.2);
+        gain.gain.linearRampToValueAtTime(0.001, now + 1.5);
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 1.6);
+        
+        // Wind chimes swell
+        for (let i = 0; i < 8; i++) {
+            this.playChimeNode(800 + i * 150, now + i * 0.15, 0.4);
+        }
+    }
+
+    playGoldTextExplosion() {
+        this.init();
+        if (typeof soundMuted !== 'undefined' && soundMuted) return;
+        const now = this.ctx.currentTime;
+        
+        // Deep Impact Boom
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(20, now + 2.0);
+        
+        gain.gain.setValueAtTime(0.9, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 2.3);
+        
+        // Explosion White Noise Burst
+        try {
+            const bufferSize = this.ctx.sampleRate * 1.5;
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const noiseFilter = this.ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.setValueAtTime(1000, now);
+            noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 1.2);
+            noiseFilter.Q.setValueAtTime(3, now);
+            
+            const noiseGain = this.ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.25, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+            
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(this.ctx.destination);
+            
+            noise.start(now);
+            noise.stop(now + 1.5);
+        } catch (e) {
+            console.error("Audio noise generation failed:", e);
+        }
+        
+        // High frequency crackling sparkles
+        for (let i = 0; i < 20; i++) {
+            const timeOffset = Math.random() * 0.8;
+            const pitch = 1200 + Math.random() * 1800;
+            const vol = 0.15 + Math.random() * 0.15;
+            this.playChimeNode(pitch, now + timeOffset, vol);
+        }
     }
 }
 
 const synth = new SoundSynth();
+window.synth = synth;
 
 // ─── Cinematic Banyan Dream Tree ───────────────────────────────────────────────
 class BorderDreamTree {

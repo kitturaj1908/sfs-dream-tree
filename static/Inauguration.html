@@ -1063,6 +1063,10 @@
             endedPhase = 1;
             endedPhaseTimer = 0;
             
+            if (window.synth && typeof window.synth.playGoldTextFade === 'function') {
+                window.synth.playGoldTextFade();
+            }
+            
             const container = document.getElementById('ended-gold-text-container');
             if (container) {
                 container.style.display = 'flex';
@@ -1218,6 +1222,9 @@
             } 
             else if (endedPhase === 3) {
                 if (endedPhaseTimer === 1) {
+                    if (window.synth && typeof window.synth.playGoldTextExplosion === 'function') {
+                        window.synth.playGoldTextExplosion();
+                    }
                     const container = document.getElementById('ended-gold-text-container');
                     if (container) {
                         container.classList.add('shake');
