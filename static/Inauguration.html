@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The SFS Dream Tree</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
     <style>
         body,
         html {
@@ -379,6 +380,9 @@
             animation: text-glow-pulse 4s ease-in-out infinite;
         }
 
+        /* ═══════════════════════════════════════════════
+           3D GOLD TITLE & PARTICLE SYSTEM OVERLAYS
+           ═══════════════════════════════════════════════ */
         .splash-event-name {
             font-size: 2.4rem;
             letter-spacing: 9px;
@@ -393,6 +397,190 @@
             background: rgba(0, 242, 254, 0.06);
             z-index: 2;
             animation: subtitle-shimmer 4s ease-in-out 0.5s infinite;
+        }
+
+        @keyframes subtitle-shimmer {
+            0%, 100% {
+                text-shadow: 0 0 14px rgba(0, 242, 254, 0.7);
+                border-color: rgba(0, 242, 254, 0.3);
+                background: rgba(0, 242, 254, 0.06);
+            }
+            50% {
+                text-shadow: 0 0 24px rgba(0, 242, 254, 0.95), 0 0 10px rgba(0, 242, 254, 0.4);
+                border-color: rgba(0, 242, 254, 0.65);
+                background: rgba(0, 242, 254, 0.12);
+            }
+        }
+
+        .gold-title-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 35px rgba(212, 175, 55, 0.25));
+            overflow: visible;
+        }
+
+        /* Continuous subtle shimmer sweep animation on the splash screen title */
+        .shimmer-text {
+            background-size: 200% auto;
+            animation: svgShineSweep 6s linear infinite;
+        }
+
+        @keyframes svgShineSweep {
+            0% { stop-color: #ffd700; }
+            30% { stop-color: #ffd700; }
+            45% { stop-color: #fff; }
+            50% { stop-color: #fff; }
+            55% { stop-color: #ffd700; }
+            100% { stop-color: #ffd700; }
+        }
+
+        /* Ended Gold Text Container */
+        #ended-gold-text-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        #ended-gold-text-container.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #ended-particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .ended-gold-title-wrapper {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.9);
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #ended-gold-text-container.visible .ended-gold-title-wrapper {
+            transform: scale(1);
+        }
+
+        /* Lens Flares / Sparkles styles */
+        .lens-flares-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .lens-flare {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #ffffff 10%, rgba(255, 230, 100, 0.8) 30%, rgba(255, 200, 0, 0) 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            filter: drop-shadow(0 0 10px rgba(255, 220, 100, 0.9));
+        }
+
+        .lens-flare::before,
+        .lens-flare::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0));
+        }
+
+        .lens-flare::before {
+            width: 260px;
+            height: 1.5px;
+        }
+
+        .lens-flare::after {
+            width: 1.5px;
+            height: 260px;
+        }
+
+        .lens-flare-diagonal {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: rotate(45deg);
+        }
+
+        .lens-flare-diagonal::before,
+        .lens-flare-diagonal::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(to right, rgba(255, 240, 180, 0), rgba(255, 240, 180, 0.8) 50%, rgba(255, 240, 180, 0));
+        }
+
+        .lens-flare-diagonal::before {
+            width: 160px;
+            height: 1px;
+        }
+
+        .lens-flare-diagonal::after {
+            width: 1px;
+            height: 160px;
+        }
+
+        @keyframes flare-blink {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            30%, 70% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 1;
+            }
+        }
+
+        @keyframes container-shake {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-4px, -2px); }
+            20% { transform: translate(3px, 2px); }
+            30% { transform: translate(-3px, -1px); }
+            40% { transform: translate(2px, 3px); }
+            50% { transform: translate(-2px, -3px); }
+            60% { transform: translate(3px, 1px); }
+            70% { transform: translate(-1px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            90% { transform: translate(-2px, 1px); }
+            100% { transform: translate(0, 0); }
+        }
+        #ended-gold-text-container.shake {
+            animation: container-shake 0.6s ease-in-out;
         }
 
         /* CTA */
@@ -575,6 +763,51 @@
             </svg>
         </div>
 
+        <!-- Ended Gold Text Overlay -->
+        <div id="ended-gold-text-container" style="display: none;">
+            <canvas id="ended-particles-canvas"></canvas>
+            <div class="ended-gold-title-wrapper">
+                <svg viewBox="0 0 1000 320" class="gold-title-svg" id="ended-gold-title-svg" style="opacity: 0;">
+                    <defs>
+                        <linearGradient id="goldGradEnded" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ffd700" />
+                            <stop offset="25%" stop-color="#fff5cc" />
+                            <stop offset="50%" stop-color="#b8860b" />
+                            <stop offset="75%" stop-color="#ffd700" />
+                            <stop offset="100%" stop-color="#8a640f" />
+                        </linearGradient>
+                        <path id="archPathEnded" d="M 100 220 A 700 700 0 0 1 900 220" />
+                        <filter id="gold3dEnded">
+                            <feOffset dx="0" dy="1" in="SourceAlpha" result="d1"/>
+                            <feOffset dx="0" dy="2" in="SourceAlpha" result="d2"/>
+                            <feOffset dx="0" dy="3" in="SourceAlpha" result="d3"/>
+                            <feOffset dx="0" dy="4" in="SourceAlpha" result="d4"/>
+                            <feOffset dx="0" dy="5" in="SourceAlpha" opacity="0.8" result="d5"/>
+                            <feMerge result="3d">
+                                <feMergeNode in="d1"/><feMergeNode in="d2"/>
+                                <feMergeNode in="d3"/><feMergeNode in="d4"/>
+                                <feMergeNode in="d5"/>
+                            </feMerge>
+                            <feFlood flood-color="#4a3000" result="floodColor"/>
+                            <feComposite in="floodColor" in2="3d" operator="in" result="extrusion"/>
+                            <feOffset dx="0" dy="8" in="SourceAlpha" result="shadowOffset"/>
+                            <feGaussianBlur in="shadowOffset" stdDeviation="5" result="shadowBlur"/>
+                            <feMerge>
+                                <feMergeNode in="shadowBlur"/>
+                                <feMergeNode in="extrusion"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <text filter="url(#gold3dEnded)" fill="url(#goldGradEnded)" font-family="'Cinzel', serif" font-weight="900" font-size="76" letter-spacing="4px" text-anchor="middle">
+                        <textPath href="#archPathEnded" startOffset="50%">DEEKSHARAMBHA</textPath>
+                    </text>
+                    <text x="500" y="295" filter="url(#gold3dEnded)" fill="url(#goldGradEnded)" font-family="'Cinzel', serif" font-weight="900" font-size="92" letter-spacing="8px" text-anchor="middle">2K26</text>
+                </svg>
+                <div class="lens-flares-container" id="lens-flares"></div>
+            </div>
+        </div>
+
         <!-- Developer Watermark -->
         <div class="dev-watermark" style="position: absolute; bottom: 20px; left: 20px; z-index: 25; font-size: 0.72rem; color: rgba(255, 255, 255, 0.35); letter-spacing: 1px; text-transform: uppercase; font-family: 'Outfit', sans-serif; pointer-events: none; opacity: 0.8;">
             Developed by <span style="color: #00f2fe; font-weight: 600; text-shadow: 0 0 8px rgba(0, 242, 254, 0.4);">KEERTHAN RAJA Y</span>
@@ -582,7 +815,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/tree.js"></script>
+    <script src="/static/tree.js?v=2"></script>
     <script>
         let soundMuted = false;
 
@@ -610,20 +843,20 @@
             ];
 
             /* Sparkle burst particles (random re-spawn at ring edges) */
-            const sparks = Array.from({ length: 50 }, () => makeSpark());
-            function makeSpark() {
-                const ring = [200, 252, 300][Math.floor(Math.random() * 3)];
-                const a = Math.random() * Math.PI * 2;
-                return {
-                    x: Math.cos(a) * ring, y: Math.sin(a) * ring,
-                    vx: (Math.random() - 0.5) * 1.2, vy: (Math.random() - 0.5) * 1.2 - 0.4,
-                    life: 1.0, decay: 0.008 + Math.random() * 0.012,
-                    r: Math.random() * 2 + 0.5,
-                    col: [[0, 242, 254], [217, 70, 239], [16, 185, 129]][Math.floor(Math.random() * 3)]
-                };
-            }
+             const sparks = Array.from({ length: 50 }, () => makeSpark());
+             function makeSpark() {
+                 const ring = [200, 252, 300][Math.floor(Math.random() * 3)];
+                 const a = Math.random() * Math.PI * 2;
+                 return {
+                     x: Math.cos(a) * ring, y: Math.sin(a) * ring,
+                     vx: (Math.random() - 0.5) * 1.2, vy: (Math.random() - 0.5) * 1.2 - 0.4,
+                     life: 1.0, decay: 0.008 + Math.random() * 0.012,
+                     r: Math.random() * 2 + 0.5,
+                     col: [[0, 242, 254], [217, 70, 239], [16, 185, 129]][Math.floor(Math.random() * 3)]
+                 };
+             }
 
-            function resize() {
+             function resize() {
                 W = canvas.width = window.innerWidth;
                 H = canvas.height = window.innerHeight;
                 cx = W / 2; cy = H / 2;
@@ -720,6 +953,9 @@
                     ctx.fill();
                 }
                 ctx.restore();
+
+
+
                 requestAnimationFrame(draw);
             }
             draw();
@@ -810,6 +1046,274 @@
         window.addEventListener("load", () => {
             fetchCTAConfig();
         });
+
+        /* ══════════════════════════════════════════════════════════
+           GOLD TEXT ANIMATION CONTROLLER (3D Title, flares, embers)
+           ══════════════════════════════════════════════════════════ */
+        let endedAnimationStarted = false;
+        let endedCanvas, endedCtx;
+        let endedParticles = [];
+        let endedAnimationId;
+        let endedPhase = 0; // 0: inactive, 1: fade-in, 2: shine-sweep, 3: explosion, 4: dissolve, 5: loop-delay
+        let endedPhaseTimer = 0;
+
+        window.triggerGoldTextAnimation = function() {
+            if (endedAnimationStarted) return;
+            endedAnimationStarted = true;
+            endedPhase = 1;
+            endedPhaseTimer = 0;
+            
+            const container = document.getElementById('ended-gold-text-container');
+            if (container) {
+                container.style.display = 'flex';
+                container.offsetHeight; // force reflow
+                container.classList.add('visible');
+            }
+            
+            initEndedParticles();
+            runEndedAnimationLoop();
+        };
+
+        window.resetGoldTextAnimation = function() {
+            endedAnimationStarted = false;
+            endedPhase = 0;
+            if (endedAnimationId) cancelAnimationFrame(endedAnimationId);
+            const container = document.getElementById('ended-gold-text-container');
+            if (container) {
+                container.classList.remove('visible');
+                setTimeout(() => {
+                    if (!endedAnimationStarted) container.style.display = 'none';
+                }, 1500);
+            }
+            endedParticles = [];
+        };
+
+        function initEndedParticles() {
+            endedCanvas = document.getElementById('ended-particles-canvas');
+            if (!endedCanvas) return;
+            endedCtx = endedCanvas.getContext('2d');
+            resizeEndedCanvas();
+            window.addEventListener('resize', resizeEndedCanvas);
+        }
+
+        function resizeEndedCanvas() {
+            if (!endedCanvas) return;
+            endedCanvas.width = window.innerWidth;
+            endedCanvas.height = window.innerHeight;
+        }
+
+        class EndedParticle {
+            constructor(x, y, isExplosion = false, isDissolve = false) {
+                this.x = x;
+                this.y = y;
+                this.isDissolve = isDissolve;
+                
+                const angle = isExplosion 
+                    ? Math.random() * Math.PI * 2 
+                    : -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
+                
+                const speed = isExplosion
+                    ? Math.random() * 8 + 3
+                    : Math.random() * 2 + 1;
+                
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed - (isExplosion ? 2 : 1);
+                
+                this.size = Math.random() * (isExplosion ? 4.5 : 2.5) + 1.2;
+                this.alpha = 1.0;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.012 + 0.006;
+                this.gravity = 0.04;
+                this.wind = (Math.random() - 0.5) * 0.05;
+                
+                const colors = [
+                    'rgba(255, 215, 0, ',   // Gold
+                    'rgba(255, 120, 0, ',   // Orange
+                    'rgba(255, 65, 0, ',    // Red-Orange
+                    'rgba(255, 240, 180, '  // Bright Yellow
+                ];
+                this.colorPrefix = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx += this.wind;
+                this.alpha -= this.decay;
+                if (this.alpha < 0) this.alpha = 0;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.colorPrefix + this.alpha + ')';
+                
+                if (this.size > 2.5) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = 'rgba(255, 100, 0, 0.8)';
+                }
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function runEndedAnimationLoop() {
+            if (!endedAnimationStarted || !endedCanvas || !endedCtx) return;
+            
+            endedCtx.fillStyle = 'rgba(7, 8, 20, 0.25)';
+            endedCtx.fillRect(0, 0, endedCanvas.width, endedCanvas.height);
+            
+            endedPhaseTimer++;
+            
+            const titleSvg = document.getElementById('ended-gold-title-svg');
+            
+            if (endedPhase === 1) {
+                if (titleSvg) {
+                    titleSvg.style.opacity = endedPhaseTimer / 90;
+                    titleSvg.style.filter = `drop-shadow(0 15px 25px rgba(0,0,0,0.95)) drop-shadow(0 0 ${20 + (endedPhaseTimer/90)*25}px rgba(212,175,55,0.4))`;
+                }
+                
+                if (Math.random() < 0.2) {
+                    const rx = endedCanvas.width / 2 + (Math.random() - 0.5) * 600;
+                    const ry = endedCanvas.height / 2 + 100;
+                    endedParticles.push(new EndedParticle(rx, ry));
+                }
+                
+                if (endedPhaseTimer >= 90) {
+                    endedPhase = 2;
+                    endedPhaseTimer = 0;
+                }
+            } 
+            else if (endedPhase === 2) {
+                if (titleSvg) {
+                    titleSvg.style.opacity = 1;
+                }
+                
+                if (endedPhaseTimer === 10 || endedPhaseTimer === 40 || endedPhaseTimer === 70 || endedPhaseTimer === 100) {
+                    const rect = titleSvg.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const w = rect.width;
+                    const h = rect.height;
+                    
+                    if (endedPhaseTimer === 10) triggerLensFlare(cx - w * 0.25, cy - h * 0.2);
+                    if (endedPhaseTimer === 40) triggerLensFlare(cx, cy - h * 0.35);
+                    if (endedPhaseTimer === 70) triggerLensFlare(cx + w * 0.25, cy - h * 0.2);
+                    if (endedPhaseTimer === 100) triggerLensFlare(cx, cy + h * 0.25);
+                }
+                
+                if (Math.random() < 0.3) {
+                    const rx = endedCanvas.width / 2 + (Math.random() - 0.5) * 600;
+                    const ry = endedCanvas.height / 2 + (Math.random() - 0.5) * 200;
+                    endedParticles.push(new EndedParticle(rx, ry));
+                }
+                
+                if (endedPhaseTimer >= 150) {
+                    endedPhase = 3;
+                    endedPhaseTimer = 0;
+                }
+            } 
+            else if (endedPhase === 3) {
+                if (endedPhaseTimer === 1) {
+                    const container = document.getElementById('ended-gold-text-container');
+                    if (container) {
+                        container.classList.add('shake');
+                        setTimeout(() => container.classList.remove('shake'), 600);
+                    }
+                    
+                    const numSparks = 200;
+                    const rect = titleSvg.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const w = rect.width;
+                    const h = rect.height;
+                    for (let i = 0; i < numSparks; i++) {
+                        const rx = cx + (Math.random() - 0.5) * w;
+                        const ry = cy + (Math.random() - 0.5) * h;
+                        endedParticles.push(new EndedParticle(rx, ry, true));
+                    }
+                }
+                
+                if (Math.random() < 0.8) {
+                    const rect = titleSvg.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const rx = cx + (Math.random() - 0.5) * rect.width;
+                    const ry = cy + (Math.random() - 0.5) * rect.height;
+                    endedParticles.push(new EndedParticle(rx, ry, false));
+                }
+                
+                if (endedPhaseTimer >= 120) {
+                    endedPhase = 4;
+                    endedPhaseTimer = 0;
+                }
+            } 
+            else if (endedPhase === 4) {
+                const progress = endedPhaseTimer / 120;
+                if (titleSvg) {
+                    titleSvg.style.opacity = 1 - progress;
+                    titleSvg.style.transform = `scale(${1 - progress * 0.05}) translateY(${-progress * 15}px)`;
+                }
+                
+                const rect = titleSvg.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const rx = cx + (Math.random() - 0.5) * rect.width;
+                const ry = cy + (Math.random() - 0.5) * rect.height - progress * 15;
+                endedParticles.push(new EndedParticle(rx, ry, false, true));
+                if (Math.random() < 0.5) {
+                    endedParticles.push(new EndedParticle(rx, ry, false, true));
+                }
+                
+                if (endedPhaseTimer >= 120) {
+                    endedPhase = 5;
+                    endedPhaseTimer = 0;
+                }
+            } 
+            else if (endedPhase === 5) {
+                if (titleSvg) {
+                    titleSvg.style.opacity = 0;
+                    titleSvg.style.transform = 'scale(1) translateY(0)';
+                }
+                
+                if (endedPhaseTimer >= 150) {
+                    endedPhase = 1;
+                    endedPhaseTimer = 0;
+                }
+            }
+            
+            endedParticles = endedParticles.filter(p => p.alpha > 0);
+            endedParticles.forEach(p => {
+                p.update();
+                p.draw(endedCtx);
+            });
+            
+            endedAnimationId = requestAnimationFrame(runEndedAnimationLoop);
+        }
+
+        function triggerLensFlare(x, y) {
+            const container = document.getElementById('lens-flares');
+            if (!container) return;
+            
+            const flare = document.createElement('div');
+            flare.className = 'lens-flare';
+            flare.style.left = `${x}px`;
+            flare.style.top = `${y}px`;
+            
+            const diagonal = document.createElement('div');
+            diagonal.className = 'lens-flare-diagonal';
+            flare.appendChild(diagonal);
+            
+            container.appendChild(flare);
+            flare.style.animation = 'flare-blink 0.8s ease-out forwards';
+            
+            setTimeout(() => {
+                flare.remove();
+            }, 800);
+        }
     </script>
 </body>
 

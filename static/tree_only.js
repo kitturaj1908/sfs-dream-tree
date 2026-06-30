@@ -110,6 +110,13 @@ class BorderDreamTree {
         this.messageQueue = [];
         this.carouselIndex = 0;
 
+        // Timer settings
+        this.timerDuration = 75; // 1 min 15 sec
+        this.elapsedSeconds = 0;
+        this.timerActive = false;
+        this.timerTimeout = null;
+        this.endProgress = 0;
+
         this.resize();
         window.addEventListener('resize', () => { this.resize(); this.generateCanopyLeaves(); });
 
@@ -216,6 +223,71 @@ class BorderDreamTree {
         this.activationStage = 'logo_active';
     }
 
+    startTimer(offsetSeconds = 0) {
+        if (this.timerActive) return;
+        this.timerActive = true;
+        this.elapsedSeconds = Math.max(0, Math.floor(offsetSeconds));
+        
+        if (this.timerTimeout) clearTimeout(this.timerTimeout);
+
+        const tick = () => {
+            if (!this.timerActive) return;
+            this.elapsedSeconds++;
+            if (this.elapsedSeconds >= this.timerDuration) {
+                this.endInauguration();
+            } else {
+                this.timerTimeout = setTimeout(tick, 1000);
+            }
+        };
+        this.timerTimeout = setTimeout(tick, 1000);
+    }
+
+    endInauguration() {
+        this.timerActive = false;
+        this.activationStage = 'ended';
+        this.endProgress = 0;
+
+        // Hide HUD overlay, watermark, and sound buttons
+        const hud = document.getElementById('hud-header');
+        if (hud) hud.style.opacity = '0';
+
+        const wm = document.getElementById('logo-watermark');
+        if (wm) wm.classList.remove('visible');
+
+        const soundBtn = document.getElementById('sound-btn');
+        if (soundBtn) {
+            soundBtn.style.opacity = '0';
+            soundBtn.style.pointerEvents = 'none';
+        }
+    }
+
+    drawGoldText(ctx, opacity) {
+        const W = this.width, H = this.height;
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // High-end premium gold metallic gradient
+        const grad = ctx.createLinearGradient(W/2 - 300, H/2, W/2 + 300, H/2);
+        grad.addColorStop(0, '#FFE082');   // light gold
+        grad.addColorStop(0.25, '#FFD54F'); // gold
+        grad.addColorStop(0.5, '#FFC107');  // amber gold
+        grad.addColorStop(0.75, '#FFA000'); // dark gold
+        grad.addColorStop(1, '#FF8F00');    // deep gold
+
+        ctx.fillStyle = grad;
+        ctx.shadowColor = 'rgba(255, 193, 7, 0.65)';
+        ctx.shadowBlur = 35;
+
+        // Responsive font size based on window width
+        const fontSize = Math.min(72, Math.max(32, W * 0.06));
+        ctx.font = '800 ' + fontSize + 'px "Playfair Display", serif';
+        ctx.fillText('DEEKSHARAMBHA 2K26', W / 2, H / 2);
+
+        ctx.restore();
+    }
+
     /** Called after the 3-second logo countdown */
     startSeedSequence() {
         this.activationStage = 'seed';
@@ -244,7 +316,7 @@ class BorderDreamTree {
     }
 
     _animateSeedling() {
-        const dur = 3200;
+        const dur = 6000;
         const t0 = performance.now();
         const run = (now) => {
             this.seedlingProgress = Math.max(0, Math.min(1, (now - t0) / dur));
@@ -260,20 +332,20 @@ class BorderDreamTree {
             if (this.seedlingProgress < 1) requestAnimationFrame(run);
             else {
                 this.activationStage = 'seedling_wait';
-                // 1.5-second pause on the seedling
+                // 2-second pause on the seedling
                 setTimeout(() => {
                     this.activationStage = 'growing';
                     this.treeProgress = 0;
                     synth.playGrowth();
                     this._animateBanyanGrowth();
-                }, 1500);
+                }, 2000);
             }
         };
         requestAnimationFrame(run);
     }
 
     _animateBanyanGrowth() {
-        const dur = 3800;
+        const dur = 19000;
         const t0 = performance.now();
         const cx = this.width / 2, cy = this.height * 0.38;
         const rx = Math.min(this.width * 0.34, 400);
@@ -391,9 +463,9 @@ class BorderDreamTree {
         if (len <= 40)      { fontSize = 24.0; lineHeight = 26.0; wrapChars = 15; scale = 0.9; }
         else if (len <= 80) { fontSize = 21.0; lineHeight = 23.0; wrapChars = 19; scale = 1.0; }
 
-        const nameStr = wish.student_name ? wish.student_name.substring(0, 18) : '';
-        const nameH = nameStr ? 14 : 0;
-        const gap = nameStr ? 4 : 0;
+        const nameStr = '';
+        const nameH = 0;
+        const gap = 0;
         const msgLines = this.wrapText(wish.message, wrapChars);
         const textHeight = nameH + gap + msgLines.length * lineHeight;
 
@@ -982,7 +1054,7 @@ class BorderDreamTree {
     // ──────────────────────────────────────────────────────────────────────────
     //  STAGE: Full Banyan Tree
     // ──────────────────────────────────────────────────────────────────────────
-    drawBanyanTree(ctx) {
+    drawBanyanTree(ctx, messageOpacity = 1.0) {
         const W = this.width, H = this.height;
         const cx = W / 2;
         const cy = H * 0.38;
@@ -1228,7 +1300,7 @@ class BorderDreamTree {
         }
 
         // ────────────────────────────── 6. Border Accent Leaves
-        if (this.activationStage === 'raining' || this.activationStage === 'title') {
+        if (this.activationStage === 'raining' || this.activationStage === 'title' || this.activationStage === 'ended') {
             this.borderLeaves.forEach(l => {
                 l.offset += l.pulseSpeed;
                 const b = Math.sin(l.offset) * 2.2;
@@ -1248,7 +1320,7 @@ class BorderDreamTree {
         });
 
         // ── 8. Plucked leaf messages (raining stage)
-        if (this.activationStage === 'raining' || this.activationStage === 'title') {
+        if (this.activationStage === 'raining' || this.activationStage === 'title' || this.activationStage === 'ended') {
             this.canopyLeaves.forEach(l => {
                 if (!l.isPlucked) {
                     l.offset += l.pulseSpeed;
@@ -1288,7 +1360,7 @@ class BorderDreamTree {
                     l.palette.fill = `hsla(${h},72%,12%,0.88)`;
                     l.palette.glow = `hsla(${h},95%,60%,0.92)`;
 
-                    this._drawWishLeaf(ctx, l, l.currentX, opacity);
+                    this._drawWishLeaf(ctx, l, l.currentX, opacity * messageOpacity);
                 }
             });
         }
@@ -1341,7 +1413,7 @@ class BorderDreamTree {
         const ctx = this.ctx;
         const stage = this.activationStage;
 
-        ctx.fillStyle = (stage === 'raining' || stage === 'title')
+        ctx.fillStyle = (stage === 'raining' || stage === 'title' || stage === 'ended')
             ? 'rgba(7,8,20,0.18)' : 'rgba(7,8,20,0.28)';
         ctx.fillRect(0, 0, this.width, this.height);
 
@@ -1350,6 +1422,37 @@ class BorderDreamTree {
         if (stage === 'blank' || stage === 'welcome' || stage === 'logo_active') return;
         if (stage === 'seed') { this.drawSeed(ctx); return; }
         if (stage === 'seedling' || stage === 'seedling_wait') { this.drawSeedling(ctx); return; }
+
+        if (stage === 'ended') {
+            if (this.endProgress === undefined) this.endProgress = 0;
+            if (this.endProgress < 3.0) {
+                this.endProgress += 0.015; // smooth increment
+                if (this.endProgress > 3.0) this.endProgress = 3.0;
+            }
+            
+            // Phase 1 (0 to 1): Messages fade out.
+            // Phase 2 (1 to 2): Tree/canopy/border leaves fade out.
+            // Phase 3 (2 to 3): Gold text fades in.
+            const messageOpacity = Math.max(0, Math.min(1, 1 - this.endProgress));
+            const treeOpacity = Math.max(0, Math.min(1, 2 - this.endProgress));
+            const textOpacity = Math.max(0, Math.min(1, this.endProgress - 2));
+
+            // Draw tree/leaves with current tree opacity and message opacity modifiers
+            if (treeOpacity > 0) {
+                ctx.save();
+                ctx.globalAlpha = treeOpacity;
+                this.drawBanyanTree(ctx, messageOpacity);
+                ctx.restore();
+            }
+
+            // Draw gold title fading in
+            if (textOpacity > 0) {
+                if (typeof window.triggerGoldTextAnimation === 'function') {
+                    window.triggerGoldTextAnimation();
+                }
+            }
+            return;
+        }
 
         this.drawBanyanTree(ctx);
     }
@@ -1379,12 +1482,22 @@ async function checkActivationState() {
         tree.activationKey = data.activation_key || 'Space';
 
         if (data.is_activated && !tree.isActivated) {
+            // Already activated in DB — skip animation, go straight to raining or ended
             tree.isActivated = true;
             tree.treeProgress = 1.0;
-            tree.activationStage = 'raining';
-            if (typeof activateTitle === 'function') activateTitle();
-            if (typeof hideSplash === 'function') hideSplash();
-            loadExistingMessages();
+            if (data.elapsed_seconds >= 75) {
+                tree.activationStage = 'ended';
+                tree.endProgress = 1.0;
+                if (typeof hideSplash === 'function') hideSplash();
+                tree.endInauguration();
+                tree.endProgress = 1.0;
+            } else {
+                tree.activationStage = 'raining';
+                if (typeof activateTitle === 'function') activateTitle();
+                if (typeof hideSplash === 'function') hideSplash();
+                loadExistingMessages();
+                tree.startTimer(data.elapsed_seconds);
+            }
         }
     } catch (e) { console.error(e); }
 }
@@ -1405,9 +1518,41 @@ function connectWebSocket() {
     ws.onmessage = (event) => {
         const payload = JSON.parse(event.data);
         if (payload.type === 'activation_state') {
-            if (payload.is_activated && !tree.isActivated) {
-                triggerActivation();
-                setTimeout(loadExistingMessages, 4500);
+            if (payload.is_activated) {
+                if (!tree.isActivated) {
+                    triggerActivation();
+                    setTimeout(loadExistingMessages, 4500);
+                }
+            } else {
+                // Reset client state back to welcome
+                tree.isActivated = false;
+                tree.activationStage = 'welcome';
+                tree.timerActive = false;
+                if (tree.timerTimeout) clearTimeout(tree.timerTimeout);
+                tree.elapsedSeconds = 0;
+                tree.endProgress = 0;
+                tree.treeProgress = 0;
+                tree.seedProgress = 0;
+                tree.seedlingProgress = 0;
+                
+                if (typeof window.resetGoldTextAnimation === 'function') {
+                    window.resetGoldTextAnimation();
+                }
+                
+                const splash = document.getElementById('logo-splash');
+                if (splash) {
+                    splash.classList.remove('hidden');
+                    splash.classList.remove('morphing');
+                }
+                const hud = document.getElementById('hud-header');
+                if (hud) hud.style.opacity = '0';
+                const wm = document.getElementById('logo-watermark');
+                if (wm) wm.classList.remove('visible');
+                const soundBtn = document.getElementById('sound-btn');
+                if (soundBtn) {
+                    soundBtn.style.opacity = '0';
+                    soundBtn.style.pointerEvents = 'none';
+                }
             }
         } else if (payload.type === 'new_message') {
             tree.addWish(payload.data);
@@ -1426,6 +1571,7 @@ function triggerActivation() {
 
     // Activate tree state
     tree.activate();
+    tree.startTimer(0);
 
     // Compute morph offsets dynamically
     const splash = document.getElementById('logo-splash');

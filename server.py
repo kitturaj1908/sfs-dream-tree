@@ -418,6 +418,12 @@ def get_setting(key: str, default: str = "") -> str:
 
 def set_setting(key: str, value: str):
     db.set_setting(key, value)
+    if key == 'is_activated':
+        if value == 'true':
+            import time
+            db.set_setting('inauguration_start_time', str(time.time()))
+        else:
+            db.set_setting('inauguration_start_time', '')
 
 def increment_blocked_count():
     db.increment_blocked_count()
@@ -609,10 +615,15 @@ async def reject_message(msg_id: int, token: str = None):
 
 @app.get("/api/status")
 async def get_tree_status():
+    import time
+    start_time_str = get_setting('inauguration_start_time', '')
+    start_time = float(start_time_str) if start_time_str else 0.0
+    elapsed = time.time() - start_time if start_time else 0.0
     return {
         'is_activated': get_setting('is_activated') == 'true',
         'activation_key': get_setting('activation_key'),
-        'auto_approve': get_setting('auto_approve_positive') == 'true'
+        'auto_approve': get_setting('auto_approve_positive') == 'true',
+        'elapsed_seconds': elapsed
     }
 
 @app.get("/api/db-info")
